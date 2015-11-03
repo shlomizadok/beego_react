@@ -3,13 +3,13 @@ var PostList = React.createClass({
   render: function() {
     var postNodes = this.props.data.map(function (post) {
       return (
-        <Post title={post.Title}>
+        <Post key={post.Id} title={post.Title}>
           {post.Blog}
         </Post>
       );
     });
     return (
-      <div className="commentList">
+      <div className="postList">
         {postNodes}
       </div>
     );
@@ -23,17 +23,30 @@ var Post = React.createClass({
       },
   render: function() {
     return (
-      <div className="comment">
-        <h2 className="commentAuthor">
-          {this.props.title}
-        </h2>
-        <span dangerouslySetInnerHTML={this.rawMarkup()} />
+      <div className="post panel panel-default">
+        <div className="panel-heading">
+          <h2 className="postTitle panel-title">
+            {this.props.title}
+          </h2>
+        </div>
+        <div className="panel-body">
+          <span dangerouslySetInnerHTML={this.rawMarkup()} />
+        </div>
       </div>
     );
   }
 });
 
 var PostForm = React.createClass({
+  getInitialState: function(){
+    return {
+        condition: true
+    }
+  },
+
+  handleClick :function(){
+      this.setState( { condition : !this.state.condition } );
+  },
   handleSubmit: function(e) {
     e.preventDefault();
     var title = this.refs.title.value.trim();
@@ -48,11 +61,22 @@ var PostForm = React.createClass({
   },
   render: function() {
     return (
-      <form className="postForm" onSubmit={this.handleSubmit}>
-        <input type="text" placeholder="title..." ref="title" />
-        <input type="text" placeholder="Say something..." ref="blog" />
-        <input type="submit" value="Post" />
-      </form>
+      <div className="post-form">
+        <div className="form-group">
+          <button type="button" className="btn btn-primary" onClick={this.handleClick}>Add a new post</button>
+        </div>
+        <form className={this.state.condition ? "hide" :"show"} onSubmit={this.handleSubmit}>
+          <div className="form-group">
+            <input type="text" className="form-control" required placeholder="title..." ref="title" />
+          </div>
+          <div className="form-group">
+            <textarea rows="4" className="form-control" cols="50" placeholder="Say something... (markdown supported)" ref="blog"></textarea>
+          </div>
+          <div className="form-group">
+            <input className="btn btn-default" type="submit" value="Post" />
+          </div>
+        </form>
+      </div>
     );
   }
 });
@@ -98,7 +122,7 @@ var PostBox = React.createClass({
   },
   render: function() {
     return (
-      <div className="commentBox">
+      <div className="postBox">
         <h1>Posts</h1>
         <PostList data={this.state.data} />
         <PostForm onPostSubmit={this.handlePostSubmit} />
